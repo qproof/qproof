@@ -1,0 +1,201 @@
+libraries:
+  # ============================================================
+  # Python packages
+  # ============================================================
+
+  cryptography:
+    ecosystem: "python"
+    package_name: "cryptography"
+    description: "Python cryptographic recipes and primitives (pyca/cryptography)"
+    exposes:
+      - "RSA"
+      - "ECDSA"
+      - "Ed25519"
+      - "X25519"
+      - "AES-256"
+      - "AES-128"
+      - "ChaCha20-Poly1305"
+      - "SHA-256"
+      - "SHA-1"
+      - "PBKDF2"
+      - "Blowfish"
+      - "3DES"
+    default_risk: "VULNERABLE"
+    notes: "Wide crypto library — risk depends on which primitives are used"
+
+  pycryptodome:
+    ecosystem: "python"
+    package_name: "pycryptodome"
+    description: "Self-contained Python package of low-level cryptographic primitives"
+    exposes:
+      - "RSA"
+      - "DSA"
+      - "ECDSA"
+      - "AES-256"
+      - "AES-128"
+      - "DES"
+      - "3DES"
+      - "Blowfish"
+      - "RC4"
+      - "SHA-1"
+      - "SHA-256"
+      - "MD5"
+      - "ChaCha20-Poly1305"
+    default_risk: "VULNERABLE"
+    notes: "Includes many legacy algorithms; scan for specific usage"
+
+  paramiko:
+    ecosystem: "python"
+    package_name: "paramiko"
+    description: "SSH2 protocol library"
+    exposes:
+      - "RSA"
+      - "ECDSA"
+      - "Ed25519"
+      - "DH"
+      - "AES-256"
+      - "AES-128"
+      - "SHA-1"
+      - "SHA-256"
+    default_risk: "PARTIAL"
+    notes: "SSH key exchange uses DH/ECDH — vulnerable to quantum"
+
+  pyopenssl:
+    ecosystem: "python"
+    package_name: "pyopenssl"
+    description: "Python wrapper around OpenSSL"
+    exposes:
+      - "RSA"
+      - "ECDSA"
+      - "DH"
+      - "AES-256"
+      - "AES-128"
+      - "SHA-1"
+      - "SHA-256"
+      - "MD5"
+    default_risk: "VULNERABLE"
+    notes: "Wraps OpenSSL; risk depends on configuration"
+
+  bcrypt-python:
+    ecosystem: "python"
+    package_name: "bcrypt"
+    description: "Modern password hashing for Python"
+    exposes:
+      - "bcrypt"
+    default_risk: "PARTIAL"
+    notes: "bcrypt uses Blowfish internally; quantum impact minimal for password hashing"
+
+  passlib:
+    ecosystem: "python"
+    package_name: "passlib"
+    description: "Password hashing library supporting multiple schemes"
+    exposes:
+      - "bcrypt"
+      - "scrypt"
+      - "Argon2"
+      - "PBKDF2"
+      - "SHA-1"
+      - "SHA-256"
+      - "MD5"
+    default_risk: "PARTIAL"
+    notes: "Risk depends on which scheme is configured"
+
+  pynacl:
+    ecosystem: "python"
+    package_name: "pynacl"
+    description: "Python binding to NaCl/libsodium"
+    exposes:
+      - "X25519"
+      - "Ed25519"
+      - "ChaCha20-Poly1305"
+      - "BLAKE2"
+    default_risk: "PARTIAL"
+    notes: "X25519 and Ed25519 are vulnerable to quantum; symmetric primitives are safe"
+
+  # ============================================================
+  # JavaScript / TypeScript packages (npm)
+  # ============================================================
+
+  jsonwebtoken:
+    ecosystem: "npm"
+    package_name: "jsonwebtoken"
+    description: "JSON Web Token implementation for Node.js"
+    exposes:
+      - "JWT-RS256"
+      - "JWT-ES256"
+      - "JWT-HS256"
+      - "RSA"
+      - "ECDSA"
+      - "HMAC-SHA256"
+    default_risk: "VULNERABLE"
+    notes: "Default RS256 uses RSA — vulnerable to quantum"
+
+  jose:
+    ecosystem: "npm"
+    package_name: "jose"
+    description: "Universal 'JSON Web Almost Everything' (JWA, JWS, JWE, JWT, JWK)"
+    exposes:
+      - "JWT-RS256"
+      - "JWT-ES256"
+      - "JWT-HS256"
+      - "RSA"
+      - "ECDSA"
+      - "HMAC-SHA256"
+    default_risk: "VULNERABLE"
+    notes: "Supports multiple algorithms; risk depends on configuration"
+
+  bcrypt-npm:
+    ecosystem: "npm"
+    package_name: "bcrypt"
+    description: "bcrypt password hashing for Node.js"
+    exposes:
+      - "bcrypt"
+    default_risk: "PARTIAL"
+    notes: "Password hashing — minimal quantum impact"
+
+  crypto-js:
+    ecosystem: "npm"
+    package_name: "crypto-js"
+    description: "JavaScript library of crypto standards"
+    exposes:
+      - "AES-256"
+      - "AES-128"
+      - "DES"
+      - "3DES"
+      - "SHA-1"
+      - "SHA-256"
+      - "MD5"
+      - "RC4"
+      - "HMAC-SHA256"
+      - "HMAC-SHA1"
+      - "PBKDF2"
+    default_risk: "PARTIAL"
+    notes: "Includes deprecated algorithms (DES, RC4, MD5)"
+
+  node-forge:
+    ecosystem: "npm"
+    package_name: "node-forge"
+    description: "JavaScript implementations of network transports, cryptography, ciphers"
+    exposes:
+      - "RSA"
+      - "AES-256"
+      - "AES-128"
+      - "DES"
+      - "3DES"
+      - "SHA-1"
+      - "SHA-256"
+      - "MD5"
+      - "HMAC-SHA256"
+    default_risk: "VULNERABLE"
+    notes: "Includes RSA and legacy algorithms"
+
+  tweetnacl:
+    ecosystem: "npm"
+    package_name: "tweetnacl"
+    description: "Port of TweetNaCl to JavaScript"
+    exposes:
+      - "X25519"
+      - "Ed25519"
+      - "ChaCha20-Poly1305"
+    default_risk: "PARTIAL"
+    notes: "X25519 and Ed25519 vulnerable to quantum; symmetric safe"

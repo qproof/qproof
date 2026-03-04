@@ -1,0 +1,912 @@
+algorithms:
+  # ============================================================
+  # ASYMMETRIC — Vulnerable to Shor's algorithm
+  # ============================================================
+
+  RSA:
+    name: "RSA"
+    variants: ["RSA-1024", "RSA-2048", "RSA-3072", "RSA-4096"]
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Shor's algorithm factors large integers in polynomial time on a cryptographically relevant quantum computer"
+    replacement: "ML-KEM-768/1024 (FIPS 203) for key encapsulation; ML-DSA-65/87 (FIPS 204) for digital signatures"
+    patterns:
+      - "RSA"
+      - "rsa_generate"
+      - "rsa_encrypt"
+      - "rsa_decrypt"
+      - "rsa_sign"
+      - "rsa_private_key"
+      - "rsa_public_key"
+      - "PKCS1_v1_5"
+      - "PKCS1_OAEP"
+      - "RSA_PKCS1_PADDING"
+    references:
+      nist:
+        - "SP 800-131A Rev.2 — Transitioning the Use of Cryptographic Algorithms"
+        - "SP 800-56B Rev.2 — Pair-Wise Key Establishment Using Integer Factorization"
+        - "FIPS 186-5 — Digital Signature Standard (RSA signature generation removed)"
+      cnsa:
+        - "CNSA 2.0 (Sep 2022) — RSA to be replaced by ML-KEM/ML-DSA"
+        - "NSA: all NSS must complete transition by 2035"
+      enisa:
+        - "ENISA PQC Integration Study (2024) — recommends hybrid PQ/T during transition"
+        - "ECCG Agreed Cryptographic Mechanisms v2 (May 2025)"
+      eu:
+        - "EU Recommendation 2024/1101 — coordinated PQC transition roadmap"
+        - "EU Coordinated Implementation Roadmap (Jun 2025) — high-risk by 2030, full by 2035"
+      ccn:
+        - "CCN-STIC 221 — Mecanismos criptográficos autorizados por el CCN"
+        - "CCN-STIC 807 — Criptología de empleo en el ENS"
+        - "RSA >= 1900 bits autorizado hasta 31/12/2026 para firma; >= 3072 bits recomendados"
+    deadlines:
+      cnsa_prefer: "2025"
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+      ccn_rsa_small_key_expiry: "2026-12-31"
+
+  DSA:
+    name: "DSA"
+    variants: ["DSA-1024", "DSA-2048", "DSA-3072"]
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Shor's algorithm solves the discrete logarithm problem in polynomial time"
+    replacement: "ML-DSA-65/87 (FIPS 204) or SLH-DSA (FIPS 205)"
+    patterns:
+      - "DSA"
+      - "dsa_generate"
+      - "dsa_sign"
+      - "dsa_verify"
+      - "DSAParameters"
+    references:
+      nist:
+        - "FIPS 186-5 — DSA removed for signature generation"
+        - "SP 800-131A Rev.2 — DSA deprecated"
+      cnsa:
+        - "CNSA 2.0 — all classical asymmetric to be replaced by PQC"
+      enisa:
+        - "ENISA PQC Integration Study (2024) — DSA not recommended for new systems"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  ECDSA:
+    name: "ECDSA"
+    variants: ["ECDSA-P256", "ECDSA-P384", "ECDSA-P521"]
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Shor's algorithm solves the elliptic curve discrete logarithm problem"
+    replacement: "ML-DSA-65/87 (FIPS 204) or SLH-DSA (FIPS 205)"
+    patterns:
+      - "ECDSA"
+      - "ecdsa_sign"
+      - "ecdsa_verify"
+      - "ec_generate"
+      - "SECP256R1"
+      - "SECP384R1"
+      - "SECP521R1"
+      - "prime256v1"
+      - "P-256"
+      - "P-384"
+      - "P-521"
+    references:
+      nist:
+        - "FIPS 186-5 — ECDSA signature standard"
+        - "SP 800-131A Rev.2 — transition guidance"
+        - "SP 800-56A Rev.3 — ECC key establishment"
+      cnsa:
+        - "CNSA 2.0 — ECDSA to be replaced by ML-DSA by 2035"
+      enisa:
+        - "ENISA PQC Integration Study (2024) — recommends hybrid ECDSA + ML-DSA"
+      eu:
+        - "EU Recommendation 2024/1101 — coordinated PQC transition"
+      ccn:
+        - "CCN-STIC 221 — ECDSA sobre curvas NIST autorizadas"
+        - "CCN-STIC 807 — uso en el ENS"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  ECDH:
+    name: "ECDH"
+    variants: ["ECDH-P256", "ECDH-P384", "ECDH-P521"]
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Shor's algorithm solves the elliptic curve discrete logarithm problem"
+    replacement: "ML-KEM-768/1024 (FIPS 203)"
+    patterns:
+      - "ECDH"
+      - "ecdh_derive"
+      - "ECDHC"
+      - "createECDH"
+    references:
+      nist:
+        - "SP 800-56A Rev.3 — Pair-Wise Key Establishment Using ECC"
+        - "SP 800-131A Rev.2 — transition guidance"
+      cnsa:
+        - "CNSA 2.0 — ECDH replaced by ML-KEM"
+      enisa:
+        - "ENISA PQC Integration Study (2024) — recommends hybrid key exchange"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  Ed25519:
+    name: "Ed25519"
+    variants: []
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Based on elliptic curves — Shor's algorithm breaks the underlying discrete log problem"
+    replacement: "ML-DSA-65 (FIPS 204) or SLH-DSA-SHA2-128s (FIPS 205)"
+    patterns:
+      - "Ed25519"
+      - "ed25519_sign"
+      - "ed25519_verify"
+      - "ED25519"
+    references:
+      nist:
+        - "SP 800-186 — Recommendations for ECC (includes Ed25519)"
+      cnsa:
+        - "CNSA 2.0 — all ECC signatures to be replaced by ML-DSA/SLH-DSA"
+      ietf:
+        - "RFC 8032 — Edwards-Curve Digital Signature Algorithm"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  Ed448:
+    name: "Ed448"
+    variants: []
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Based on elliptic curves — Shor's algorithm breaks the underlying discrete log problem"
+    replacement: "ML-DSA-87 (FIPS 204) or SLH-DSA-SHA2-256s (FIPS 205)"
+    patterns:
+      - "Ed448"
+      - "ED448"
+    references:
+      nist:
+        - "SP 800-186 — Recommendations for ECC (includes Ed448)"
+      cnsa:
+        - "CNSA 2.0 — all ECC signatures to be replaced by ML-DSA/SLH-DSA"
+      ietf:
+        - "RFC 8032 — Edwards-Curve Digital Signature Algorithm"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  X25519:
+    name: "X25519"
+    variants: []
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Based on elliptic curves — Shor's algorithm breaks the underlying ECDLP"
+    replacement: "ML-KEM-768 (FIPS 203)"
+    patterns:
+      - "X25519"
+      - "x25519_derive"
+      - "Curve25519"
+    references:
+      nist:
+        - "SP 800-186 — Recommendations for ECC (includes Curve25519)"
+      cnsa:
+        - "CNSA 2.0 — X25519 replaced by ML-KEM"
+      ietf:
+        - "RFC 7748 — Elliptic Curves for Security (X25519, X448)"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  X448:
+    name: "X448"
+    variants: []
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Based on elliptic curves — Shor's algorithm breaks the underlying ECDLP"
+    replacement: "ML-KEM-1024 (FIPS 203)"
+    patterns:
+      - "X448"
+      - "Curve448"
+    references:
+      nist:
+        - "SP 800-186 — Recommendations for ECC (includes Curve448)"
+      cnsa:
+        - "CNSA 2.0 — X448 replaced by ML-KEM"
+      ietf:
+        - "RFC 7748 — Elliptic Curves for Security (X25519, X448)"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  DH:
+    name: "Diffie-Hellman"
+    variants: ["DH-1024", "DH-2048", "DH-4096"]
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Shor's algorithm solves the discrete logarithm problem in polynomial time"
+    replacement: "ML-KEM-768/1024 (FIPS 203)"
+    patterns:
+      - "DiffieHellman"
+      - "diffie_hellman"
+      - "createDiffieHellman"
+      - "DHParameters"
+      - "dh_generate"
+    references:
+      nist:
+        - "SP 800-56A Rev.3 — Pair-Wise Key Establishment Using DLC"
+        - "SP 800-131A Rev.2 — DH key sizes and transition"
+      cnsa:
+        - "CNSA 2.0 — DH replaced by ML-KEM"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  ElGamal:
+    name: "ElGamal"
+    variants: []
+    type: "asymmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Shor's algorithm solves the discrete logarithm problem used by ElGamal"
+    replacement: "ML-KEM-768/1024 (FIPS 203) for encryption, ML-DSA (FIPS 204) for signatures"
+    patterns:
+      - "ElGamal"
+      - "elgamal_encrypt"
+      - "elgamal_decrypt"
+    references:
+      nist:
+        - "SP 800-56A Rev.3 — covers DLP-based key establishment"
+      cnsa:
+        - "CNSA 2.0 — all DLP-based asymmetric to be replaced by PQC"
+    deadlines:
+      cnsa_mandatory: "2030"
+      cnsa_exclusive: "2035"
+      eu_high_risk: "2030-12-31"
+      eu_full_transition: "2035-12-31"
+
+  # ============================================================
+  # SYMMETRIC — Grover's algorithm halves effective key length
+  # ============================================================
+
+  AES-256:
+    name: "AES-256"
+    variants: ["AES-256-GCM", "AES-256-CBC", "AES-256-CTR"]
+    type: "symmetric"
+    quantum_risk: "SAFE"
+    reason: "Grover's algorithm reduces effective key length to 128-bit, still above security threshold"
+    replacement: "No change needed — AES-256 is quantum-safe"
+    patterns:
+      - "aes-256"
+      - "AES256"
+      - "aes_256"
+      - "AES-256-GCM"
+      - "AES-256-CBC"
+      - "AES-256-CTR"
+    references:
+      nist:
+        - "FIPS 197 — Advanced Encryption Standard"
+        - "SP 800-38D — GCM mode recommendation"
+      cnsa:
+        - "CNSA 2.0 — AES-256 approved for post-quantum use"
+      ccn:
+        - "CCN-STIC 221 — AES-256 autorizado para ENS nivel alto"
+
+  AES-192:
+    name: "AES-192"
+    variants: ["AES-192-GCM", "AES-192-CBC", "AES-192-CTR"]
+    type: "symmetric"
+    quantum_risk: "SAFE"
+    reason: "Grover's algorithm reduces effective key length to 96-bit, generally considered sufficient"
+    replacement: "Consider upgrading to AES-256 for maximum quantum margin"
+    patterns:
+      - "aes-192"
+      - "AES192"
+      - "aes_192"
+      - "AES-192-GCM"
+      - "AES-192-CBC"
+    references:
+      nist:
+        - "FIPS 197 — Advanced Encryption Standard"
+        - "SP 800-131A Rev.2 — AES-192 remains approved"
+
+  AES-128:
+    name: "AES-128"
+    variants: ["AES-128-GCM", "AES-128-CBC", "AES-128-CTR"]
+    type: "symmetric"
+    quantum_risk: "PARTIAL"
+    reason: "Grover's algorithm reduces effective key length to 64-bit, below modern security thresholds"
+    replacement: "Upgrade to AES-256-GCM"
+    patterns:
+      - "aes-128"
+      - "AES128"
+      - "aes_128"
+      - "AES-128-GCM"
+      - "AES-128-CBC"
+      - "AES-128-CTR"
+      - "createCipheriv"
+    references:
+      nist:
+        - "FIPS 197 — Advanced Encryption Standard"
+        - "SP 800-131A Rev.2 — AES-128 approved but CNSA 2.0 requires AES-256"
+      cnsa:
+        - "CNSA 2.0 — requires AES-256; AES-128 not recommended for NSS"
+
+  ChaCha20-Poly1305:
+    name: "ChaCha20-Poly1305"
+    variants: []
+    type: "symmetric"
+    quantum_risk: "SAFE"
+    reason: "256-bit key — Grover reduces to 128-bit effective, still secure"
+    replacement: "No change needed — ChaCha20-Poly1305 is quantum-safe"
+    patterns:
+      - "chacha20"
+      - "ChaCha20"
+      - "CHACHA20"
+      - "chacha20-poly1305"
+      - "ChaCha20Poly1305"
+    references:
+      ietf:
+        - "RFC 8439 — ChaCha20 and Poly1305 for IETF Protocols"
+      nist:
+        - "SP 800-38D — referenced as alternative AEAD to AES-GCM"
+
+  Camellia-256:
+    name: "Camellia-256"
+    variants: ["Camellia-128", "Camellia-192", "Camellia-256"]
+    type: "symmetric"
+    quantum_risk: "SAFE"
+    reason: "256-bit variant has same quantum resistance as AES-256 — Grover reduces to 128-bit effective"
+    replacement: "No change needed for Camellia-256 — consider AES-256 for NIST compliance"
+    patterns:
+      - "Camellia"
+      - "camellia"
+      - "CAMELLIA"
+    references:
+      ietf:
+        - "RFC 3713 — Camellia Encryption Algorithm"
+        - "RFC 5528 — Camellia Counter mode and CBC-MAC for IPsec"
+      nist:
+        - "NIST evaluated Camellia; ISO/IEC 18033-3 standardized"
+
+  Blowfish:
+    name: "Blowfish"
+    variants: []
+    type: "symmetric"
+    quantum_risk: "PARTIAL"
+    reason: "64-bit block size makes it vulnerable to birthday attacks — deprecated regardless of quantum"
+    replacement: "AES-256-GCM (FIPS 197)"
+    patterns:
+      - "Blowfish"
+      - "blowfish"
+      - "BF_CBC"
+      - "bf-cbc"
+    references:
+      nist:
+        - "SP 800-131A Rev.2 — 64-bit block ciphers deprecated"
+        - "Not NIST standardized — consider deprecated"
+
+  DES:
+    name: "DES"
+    variants: []
+    type: "symmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "56-bit key already broken classically — trivially broken by quantum computers"
+    replacement: "AES-256-GCM (FIPS 197)"
+    patterns:
+      - "DES_MODE"
+      - "DES_CBC"
+      - "DES_ECB"
+      - "des_encrypt"
+      - "des_decrypt"
+      - "DESede"
+    references:
+      nist:
+        - "FIPS 46-3 (withdrawn 2005) — DES no longer approved"
+        - "SP 800-131A Rev.2 — DES disallowed"
+
+  3DES:
+    name: "Triple DES"
+    variants: ["3DES-EDE2", "3DES-EDE3"]
+    type: "symmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "64-bit block size and max 112-bit effective key — deprecated classically, trivial for quantum"
+    replacement: "AES-256-GCM (FIPS 197)"
+    patterns:
+      - "3DES"
+      - "TripleDES"
+      - "triple_des"
+      - "DES3"
+      - "DESede"
+      - "des-ede3"
+      - "DES_EDE"
+    references:
+      nist:
+        - "SP 800-131A Rev.2 — 3DES disallowed after 2023"
+        - "SP 800-67 Rev.2 — TDEA block cipher (deprecated)"
+
+  RC4:
+    name: "RC4"
+    variants: []
+    type: "symmetric"
+    quantum_risk: "VULNERABLE"
+    reason: "Broken classically — multiple practical attacks exist, prohibited by RFC 7465"
+    replacement: "AES-256-GCM (FIPS 197) or ChaCha20-Poly1305 (RFC 8439)"
+    patterns:
+      - "RC4"
+      - "ARC4"
+      - "ARCFOUR"
+      - "rc4_encrypt"
+    references:
+      nist:
+        - "SP 800-52 Rev.2 — RC4 prohibited in TLS"
+      ietf:
+        - "RFC 7465 — Prohibiting RC4 Cipher Suites"
+
+  # ============================================================
+  # HASH FUNCTIONS — Grover halves preimage resistance
+  # ============================================================
+
+  MD5:
+    name: "MD5"
+    variants: []
+    type: "hash"
+    quantum_risk: "VULNERABLE"
+    reason: "Collision attacks are practical classically — completely broken for any security purpose"
+    replacement: "SHA-256 or SHA-3-256 (FIPS 180-4 / FIPS 202)"
+    patterns:
+      - "MD5"
+      - "md5"
+      - "MD5_DIGEST"
+      - "hashlib.md5"
+      - "createHash.*md5"
+    references:
+      nist:
+        - "SP 800-131A Rev.2 — MD5 disallowed for digital signatures"
+        - "SP 800-107 Rev.1 — MD5 not recommended for any security application"
+
+  SHA-1:
+    name: "SHA-1"
+    variants: []
+    type: "hash"
+    quantum_risk: "VULNERABLE"
+    reason: "Collision attacks are practical classically (SHAttered, 2017) — do not use for security"
+    replacement: "SHA-256 or SHA-3-256 (FIPS 180-4 / FIPS 202)"
+    patterns:
+      - "SHA-1"
+      - "SHA1"
+      - "sha1"
+      - "sha_1"
+      - "hashlib.sha1"
+      - "createHash.*sha1"
+    references:
+      nist:
+        - "FIPS 180-4 — SHA-1 included but deprecated for signatures"
+        - "SP 800-131A Rev.2 — SHA-1 disallowed for digital signatures"
+
+  RIPEMD-160:
+    name: "RIPEMD-160"
+    variants: []
+    type: "hash"
+    quantum_risk: "VULNERABLE"
+    reason: "160-bit output with known classical weaknesses — Grover reduces to 80-bit preimage"
+    replacement: "SHA-256 or SHA-3-256 (FIPS 180-4 / FIPS 202)"
+    patterns:
+      - "RIPEMD"
+      - "RIPEMD160"
+      - "ripemd160"
+      - "ripemd_160"
+    references:
+      nist:
+        - "Not NIST approved — avoid for new applications"
+        - "SP 800-131A Rev.2 — only NIST-approved hashes recommended"
+
+  SHA-224:
+    name: "SHA-224"
+    variants: []
+    type: "hash"
+    quantum_risk: "PARTIAL"
+    reason: "Grover reduces preimage resistance to 112-bit — borderline for long-term security"
+    replacement: "SHA-256 or SHA-3-256 for better quantum margin"
+    patterns:
+      - "SHA-224"
+      - "SHA224"
+      - "sha224"
+      - "sha_224"
+    references:
+      nist:
+        - "FIPS 180-4 — SHA-224 approved but consider stronger alternatives"
+        - "SP 800-57 Part 1 Rev.5 — 112-bit security acceptable until 2030"
+
+  SHA-256:
+    name: "SHA-256"
+    variants: []
+    type: "hash"
+    quantum_risk: "SAFE"
+    reason: "Grover reduces preimage resistance to 128-bit — still above security threshold"
+    replacement: "No change needed — SHA-256 is quantum-safe"
+    patterns:
+      - "SHA-256"
+      - "SHA256"
+      - "sha256"
+      - "sha_256"
+      - "hashlib.sha256"
+      - "createHash.*sha256"
+    references:
+      nist:
+        - "FIPS 180-4 — Secure Hash Standard"
+        - "SP 800-57 Part 1 Rev.5 — SHA-256 provides 128-bit security"
+      cnsa:
+        - "CNSA 2.0 — SHA-256 minimum; SHA-384 preferred for NSS"
+      ccn:
+        - "CCN-STIC 221 — SHA-256 autorizado para ENS"
+
+  SHA-384:
+    name: "SHA-384"
+    variants: []
+    type: "hash"
+    quantum_risk: "SAFE"
+    reason: "Grover reduces preimage resistance to 192-bit — well above security threshold"
+    replacement: "No change needed — SHA-384 is quantum-safe"
+    patterns:
+      - "SHA-384"
+      - "SHA384"
+      - "sha384"
+      - "sha_384"
+    references:
+      nist:
+        - "FIPS 180-4 — Secure Hash Standard"
+      cnsa:
+        - "CNSA 2.0 — SHA-384 approved and preferred for NSS"
+
+  SHA-512:
+    name: "SHA-512"
+    variants: []
+    type: "hash"
+    quantum_risk: "SAFE"
+    reason: "Grover reduces preimage resistance to 256-bit — excellent quantum margin"
+    replacement: "No change needed — SHA-512 is quantum-safe"
+    patterns:
+      - "SHA-512"
+      - "SHA512"
+      - "sha512"
+      - "sha_512"
+    references:
+      nist:
+        - "FIPS 180-4 — Secure Hash Standard"
+      cnsa:
+        - "CNSA 2.0 — SHA-512 approved for NSS"
+
+  SHA-3:
+    name: "SHA-3"
+    variants: ["SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512", "SHAKE128", "SHAKE256"]
+    type: "hash"
+    quantum_risk: "SAFE"
+    reason: "Keccak sponge construction with 256+ bit security — quantum-safe"
+    replacement: "No change needed — SHA-3 is quantum-safe"
+    patterns:
+      - "SHA-3"
+      - "SHA3"
+      - "sha3"
+      - "sha3_256"
+      - "sha3_512"
+      - "SHAKE128"
+      - "SHAKE256"
+      - "Keccak"
+    references:
+      nist:
+        - "FIPS 202 — SHA-3 Standard: Permutation-Based Hash and XOFs"
+        - "SP 800-185 — SHA-3 Derived Functions (cSHAKE, KMAC, TupleHash)"
+
+  BLAKE2:
+    name: "BLAKE2"
+    variants: ["BLAKE2b", "BLAKE2s"]
+    type: "hash"
+    quantum_risk: "SAFE"
+    reason: "256-bit security level — Grover reduces to 128-bit preimage, still secure"
+    replacement: "No change needed — BLAKE2 is quantum-safe"
+    patterns:
+      - "BLAKE2"
+      - "blake2b"
+      - "blake2s"
+      - "BLAKE2b"
+      - "BLAKE2s"
+    references:
+      ietf:
+        - "RFC 7693 — The BLAKE2 Cryptographic Hash and MAC"
+
+  # ============================================================
+  # KEY DERIVATION FUNCTIONS
+  # ============================================================
+
+  bcrypt:
+    name: "bcrypt"
+    variants: []
+    type: "kdf"
+    quantum_risk: "PARTIAL"
+    reason: "Uses Blowfish internally (64-bit block); quantum impact minimal for password hashing but primitive is legacy"
+    replacement: "Argon2id for new applications; bcrypt acceptable for existing password hashing"
+    patterns:
+      - "bcrypt"
+      - "BCRYPT"
+      - "bcrypt_hash"
+      - "bcrypt.hash"
+      - "bcrypt.compare"
+      - "hashpw"
+      - "gensalt"
+    references:
+      nist:
+        - "SP 800-63B — Digital Identity: bcrypt acceptable for password storage"
+
+  scrypt:
+    name: "scrypt"
+    variants: []
+    type: "kdf"
+    quantum_risk: "SAFE"
+    reason: "Memory-hard password hashing — quantum computers don't break memory-hardness"
+    replacement: "No change needed — consider Argon2id for new applications"
+    patterns:
+      - "scrypt"
+      - "SCRYPT"
+      - "scrypt_hash"
+    references:
+      ietf:
+        - "RFC 7914 — The scrypt Password-Based Key Derivation Function"
+      nist:
+        - "SP 800-63B — scrypt acceptable for password storage"
+
+  Argon2:
+    name: "Argon2"
+    variants: ["Argon2i", "Argon2d", "Argon2id"]
+    type: "kdf"
+    quantum_risk: "SAFE"
+    reason: "Memory-hard and CPU-hard password hashing — quantum-resistant by design"
+    replacement: "No change needed — Argon2id is the recommended password hash"
+    patterns:
+      - "argon2"
+      - "Argon2"
+      - "ARGON2"
+      - "argon2id"
+      - "argon2i"
+      - "argon2d"
+    references:
+      nist:
+        - "SP 800-63B — Argon2 recommended for password storage"
+        - "Winner of Password Hashing Competition (2015)"
+
+  PBKDF2:
+    name: "PBKDF2"
+    variants: ["PBKDF2-SHA1", "PBKDF2-SHA256"]
+    type: "kdf"
+    quantum_risk: "PARTIAL"
+    reason: "Security depends on underlying hash — PBKDF2-SHA1 is weak, PBKDF2-SHA256 is acceptable"
+    replacement: "Argon2id for password hashing, or ensure PBKDF2-SHA256 with high iteration count"
+    patterns:
+      - "PBKDF2"
+      - "pbkdf2"
+      - "pbkdf2_hmac"
+      - "PBKDF2HMAC"
+    references:
+      nist:
+        - "SP 800-132 — Recommendation for Password-Based Key Derivation"
+        - "SP 800-63B — PBKDF2 with SHA-256 acceptable"
+
+  # ============================================================
+  # MESSAGE AUTHENTICATION CODES
+  # ============================================================
+
+  HMAC-SHA1:
+    name: "HMAC-SHA1"
+    variants: []
+    type: "mac"
+    quantum_risk: "PARTIAL"
+    reason: "Underlying SHA-1 is broken for collisions, but HMAC construction mitigates most attacks"
+    replacement: "HMAC-SHA256 or HMAC-SHA3-256"
+    patterns:
+      - "HMAC-SHA1"
+      - "hmac_sha1"
+      - "hmac.*sha1"
+    references:
+      nist:
+        - "FIPS 198-1 — The Keyed-Hash Message Authentication Code"
+        - "SP 800-131A Rev.2 — HMAC-SHA1 acceptable but SHA-1 deprecated for new uses"
+
+  HMAC-SHA256:
+    name: "HMAC-SHA256"
+    variants: []
+    type: "mac"
+    quantum_risk: "SAFE"
+    reason: "HMAC with SHA-256 provides 128-bit post-quantum security — sufficient"
+    replacement: "No change needed — HMAC-SHA256 is quantum-safe"
+    patterns:
+      - "HMAC-SHA256"
+      - "hmac_sha256"
+      - "hmac.*sha256"
+      - "HMAC_SHA256"
+    references:
+      nist:
+        - "FIPS 198-1 — The Keyed-Hash Message Authentication Code"
+        - "SP 800-107 Rev.1 — HMAC with approved hash functions"
+
+  Poly1305:
+    name: "Poly1305"
+    variants: []
+    type: "mac"
+    quantum_risk: "SAFE"
+    reason: "One-time authenticator with information-theoretic security — not affected by quantum"
+    replacement: "No change needed — Poly1305 is quantum-safe"
+    patterns:
+      - "Poly1305"
+      - "poly1305"
+    references:
+      ietf:
+        - "RFC 8439 — ChaCha20 and Poly1305 for IETF Protocols"
+
+  # ============================================================
+  # PROTOCOLS / CONFIGURATIONS
+  # ============================================================
+
+  TLS-1.0:
+    name: "TLS 1.0"
+    variants: []
+    type: "protocol"
+    quantum_risk: "VULNERABLE"
+    reason: "Deprecated protocol with known classical vulnerabilities — also uses quantum-vulnerable key exchange"
+    replacement: "TLS 1.3 with post-quantum key exchange (hybrid ML-KEM + X25519)"
+    patterns:
+      - "TLSv1_0"
+      - "TLSv1.0"
+      - "TLS_1_0"
+      - "tls1.0"
+      - "SSLv3"
+      - "TLS1_0"
+    references:
+      ietf:
+        - "RFC 8996 — Deprecating TLS 1.0 and TLS 1.1"
+        - "RFC 2246 — TLS 1.0 (historic)"
+      nist:
+        - "SP 800-52 Rev.2 — TLS 1.0 prohibited"
+
+  TLS-1.1:
+    name: "TLS 1.1"
+    variants: []
+    type: "protocol"
+    quantum_risk: "VULNERABLE"
+    reason: "Deprecated protocol with known classical weaknesses — uses quantum-vulnerable key exchange"
+    replacement: "TLS 1.3 with post-quantum key exchange (hybrid ML-KEM + X25519)"
+    patterns:
+      - "TLSv1_1"
+      - "TLSv1.1"
+      - "TLS_1_1"
+      - "tls1.1"
+      - "TLS1_1"
+    references:
+      ietf:
+        - "RFC 8996 — Deprecating TLS 1.0 and TLS 1.1"
+        - "RFC 4346 — TLS 1.1 (historic)"
+      nist:
+        - "SP 800-52 Rev.2 — TLS 1.1 prohibited"
+
+  TLS-1.2:
+    name: "TLS 1.2"
+    variants: []
+    type: "protocol"
+    quantum_risk: "PARTIAL"
+    reason: "Secure classically but key exchange (ECDHE/DHE) is vulnerable to Shor's algorithm"
+    replacement: "TLS 1.3 with hybrid post-quantum key exchange (ML-KEM + ECDH)"
+    patterns:
+      - "TLSv1_2"
+      - "TLSv1.2"
+      - "TLS_1_2"
+      - "tls1.2"
+      - "TLS1_2"
+    references:
+      ietf:
+        - "RFC 5246 — TLS 1.2"
+      nist:
+        - "SP 800-52 Rev.2 — TLS 1.2 allowed, TLS 1.3 preferred"
+
+  TLS-1.3:
+    name: "TLS 1.3"
+    variants: []
+    type: "protocol"
+    quantum_risk: "PARTIAL"
+    reason: "Modern protocol but key exchange (X25519/ECDHE) is vulnerable to Shor's algorithm"
+    replacement: "TLS 1.3 with hybrid post-quantum key exchange (ML-KEM-768 + X25519)"
+    patterns:
+      - "TLSv1_3"
+      - "TLSv1.3"
+      - "TLS_1_3"
+      - "tls1.3"
+      - "TLS1_3"
+    references:
+      ietf:
+        - "RFC 8446 — TLS 1.3"
+        - "draft-ietf-tls-hybrid-design — Hybrid PQ key exchange for TLS 1.3"
+      nist:
+        - "SP 800-52 Rev.2 — TLS 1.3 recommended"
+
+  SSH-RSA:
+    name: "SSH RSA Keys"
+    variants: []
+    type: "protocol"
+    quantum_risk: "VULNERABLE"
+    reason: "SSH RSA key authentication relies on RSA — broken by Shor's algorithm"
+    replacement: "SSH with ML-DSA keys or hybrid PQC key exchange"
+    patterns:
+      - "ssh-rsa"
+      - "SSH_RSA"
+      - "ssh_rsa"
+      - "id_rsa"
+    references:
+      ietf:
+        - "RFC 4253 — SSH Transport Layer Protocol"
+        - "RFC 8332 — Use of RSA Keys with SHA-256/SHA-512 in SSH"
+      nist:
+        - "SP 800-131A Rev.2 — RSA key transport deprecated"
+
+  JWT-RS256:
+    name: "JWT RS256"
+    variants: ["RS384", "RS512"]
+    type: "protocol"
+    quantum_risk: "VULNERABLE"
+    reason: "Uses RSA signatures — broken by Shor's algorithm"
+    replacement: "JWT with ML-DSA signatures or HMAC-SHA256 (HS256) for symmetric use cases"
+    patterns:
+      - "RS256"
+      - "RS384"
+      - "RS512"
+      - "RSA-SHA256"
+    references:
+      ietf:
+        - "RFC 7519 — JSON Web Token (JWT)"
+        - "RFC 7518 — JSON Web Algorithms (JWA) — RS256 defined"
+
+  JWT-ES256:
+    name: "JWT ES256"
+    variants: ["ES384", "ES512"]
+    type: "protocol"
+    quantum_risk: "VULNERABLE"
+    reason: "Uses ECDSA signatures — broken by Shor's algorithm on elliptic curves"
+    replacement: "JWT with ML-DSA signatures or HMAC-SHA256 (HS256) for symmetric use cases"
+    patterns:
+      - "ES256"
+      - "ES384"
+      - "ES512"
+      - "ECDSA-SHA256"
+    references:
+      ietf:
+        - "RFC 7519 — JSON Web Token (JWT)"
+        - "RFC 7518 — JSON Web Algorithms (JWA) — ES256 defined"
+
+  JWT-HS256:
+    name: "JWT HS256"
+    variants: ["HS384", "HS512"]
+    type: "protocol"
+    quantum_risk: "SAFE"
+    reason: "Uses HMAC-SHA256 — symmetric construction with 128-bit post-quantum security"
+    replacement: "No change needed — HS256 is quantum-safe"
+    patterns:
+      - "HS256"
+      - "HS384"
+      - "HS512"
+    references:
+      ietf:
+        - "RFC 7519 — JSON Web Token (JWT)"
+        - "RFC 7518 — JSON Web Algorithms (JWA) — HS256 defined"

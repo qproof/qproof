@@ -22,7 +22,8 @@ Quantum computers will break RSA, ECDSA, and Diffie-Hellman. The EU requires ful
 - Classifies each finding: **VULNERABLE**, **PARTIAL**, or **SAFE**
 - Recommends post-quantum replacements (ML-KEM, ML-DSA per FIPS 203/204)
 - References NIST, CNSA 2.0, ENISA, EU 2024/1101, CCN-STIC 221/807
-- Outputs Rich terminal tables or JSON for CI/CD integration
+- Scans server configs (nginx, Apache, SSH, OpenSSL) and JWT/TLS settings
+- Outputs Rich terminal, JSON, SARIF (GitHub Security), or CBOM (CycloneDX v1.6)
 
 ## Quick start
 
@@ -62,6 +63,9 @@ qproof scan . --format json --output report.json
 
 # SARIF output (for GitHub Security tab)
 qproof scan . --format sarif --output qproof.sarif
+
+# CBOM output (CycloneDX v1.6 — cryptographic asset inventory)
+qproof scan . --format cbom --output cbom.json
 ```
 
 ## GitHub Actions integration
@@ -102,7 +106,9 @@ Findings appear in your repository's **Security → Code scanning alerts** tab.
 | Partial-risk symmetric | AES-128, Blowfish | PARTIAL |
 | Quantum-safe | AES-256, SHA-256, SHA-3, ChaCha20 | SAFE |
 
-43 algorithms classified. 13 libraries mapped (Python + npm).
+| Config settings | TLS 1.0/1.1, SSH RSA keys, JWT RS256/ES256 | VULNERABLE |
+
+43 algorithms classified. 13 libraries mapped. Config scanner covers nginx, SSH, OpenSSL, JWT, PEM.
 
 ## Output example
 
@@ -144,8 +150,8 @@ qproof maps every algorithm to formal standards for compliance reporting:
 ## Roadmap
 
 - [x] v0.1 — Regex source scanner, dependency scanner, Rich/JSON output
-- [ ] v0.2 — AST scanner (tree-sitter), GitHub Action marketplace
-- [ ] v0.3 — CBOM CycloneDX, config scanner (TLS/JWT/SSH), Go/Java source support
+- [x] v0.2 — SARIF output, CBOM CycloneDX v1.6, config scanner (TLS/SSH/JWT)
+- [ ] v0.3 — AST scanner (tree-sitter), GitHub Action marketplace, Go/Java source support
 - [ ] v1.0 — SaaS dashboard, compliance PDF reports
 
 ## Contributing

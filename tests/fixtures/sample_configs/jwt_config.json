@@ -1,0 +1,6 @@
+{
+  "auth": {
+    "algorithm": "RS256",
+    "expiresIn": "24h"
+  }
+}

@@ -10,6 +10,7 @@ from qproof.classifier.quantum_risk import classify
 from qproof.models import ScanResult
 from qproof.output.json_out import render_json
 from qproof.output.text import render_text
+from qproof.scanner.config import scan_configs
 from qproof.scanner.deps import scan_dependencies
 from qproof.scanner.source import scan_source_files
 from qproof.utils.file_walker import walk_files
@@ -26,7 +27,7 @@ def main() -> None:
 @click.option(
     "--format",
     "output_format",
-    type=click.Choice(["text", "json", "sarif"]),
+    type=click.Choice(["text", "json", "sarif", "cbom"]),
     default="text",
     help="Output format.",
 )
@@ -40,10 +41,11 @@ def scan(path: str, output_format: str, output: str | None) -> None:
     files = walk_files(target)
     total_files = len(files)
 
-    # Scan source code and dependencies
+    # Scan source code, dependencies, and configurations
     source_findings = scan_source_files(target)
     dep_findings = scan_dependencies(target)
-    all_findings = source_findings + dep_findings
+    config_findings = scan_configs(target)
+    all_findings = source_findings + dep_findings + config_findings
 
     # Classify findings
     classified = classify(all_findings)
@@ -65,6 +67,12 @@ def scan(path: str, output_format: str, output: str | None) -> None:
         from qproof.output.sarif import findings_to_sarif
 
         rendered = findings_to_sarif(
+            classified, str(target), result.scan_duration_seconds,
+        )
+    elif output_format == "cbom":
+        from qproof.output.cbom import findings_to_cbom
+
+        rendered = findings_to_cbom(
             classified, str(target), result.scan_duration_seconds,
         )
     else:

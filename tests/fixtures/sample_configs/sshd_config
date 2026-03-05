@@ -1,0 +1,4 @@
+HostKeyAlgorithms ssh-rsa,ecdsa-sha2-nistp256,ssh-ed25519
+Ciphers aes128-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,3des-cbc
+MACs hmac-sha1,hmac-sha2-256,hmac-sha2-512
+KexAlgorithms diffie-hellman-group14-sha256,ecdh-sha2-nistp256,curve25519-sha256

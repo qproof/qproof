@@ -8,7 +8,7 @@ qproof is a node/vertical of EYES, not a separate company. MIT license. Solo pro
 ## Stack
 - **Language**: Python 3.10+ (strict typing, no `any`)
 - **CLI**: Click
-- **Output**: Rich (terminal), JSON, SARIF v2.1.0
+- **Output**: Rich (terminal), JSON, SARIF v2.1.0, CBOM CycloneDX v1.6
 - **Data**: PyYAML (algorithm/library databases)
 - **Testing**: pytest + ruff (linter)
 - **Package**: pyproject.toml (PEP 621), editable install via `pip install -e ".[dev]"`
@@ -26,7 +26,7 @@ qproof/
 │   ├── scanner/
 │   │   ├── source.py        # Regex scanner — smart word boundaries, dedup, binary skip
 │   │   ├── deps.py          # Dependency scanner — 8 manifest formats
-│   │   └── config.py        # Config scanner (TLS, JWT, SSH) — future
+│   │   └── config.py        # Config scanner (TLS, JWT, SSH, OpenSSL, PEM)
 │   ├── classifier/
 │   │   └── quantum_risk.py  # Enriches findings with risk + replacement + reason
 │   ├── advisor/
@@ -38,7 +38,8 @@ qproof/
 │   ├── output/
 │   │   ├── text.py          # Rich terminal — color-coded table, summary panel, score
 │   │   ├── json_out.py      # Structured JSON with metadata, summary, findings
-│   │   └── sarif.py         # SARIF v2.1.0 for GitHub Security tab
+│   │   ├── sarif.py         # SARIF v2.1.0 for GitHub Security tab
+│   │   └── cbom.py          # CycloneDX v1.6 CBOM for EU compliance
 │   └── utils/
 │       └── file_walker.py   # Directory traversal with exclusions
 ├── tests/
@@ -53,7 +54,9 @@ qproof/
 │   ├── test_advisor.py
 │   ├── test_text_output.py
 │   ├── test_json_output.py
-│   └── test_sarif_output.py
+│   ├── test_sarif_output.py
+│   ├── test_cbom_output.py
+│   └── test_config_scanner.py
 ├── pyproject.toml
 ├── .github/workflows/ci.yml
 ├── CLAUDE.md
@@ -67,6 +70,7 @@ qproof scan <path>                          # Rich terminal output
 qproof scan <path> --format json            # JSON to stdout
 qproof scan <path> --format json -o out.json # JSON to file
 qproof scan <path> --format sarif -o out.sarif # SARIF for GitHub Security
+qproof scan <path> --format cbom -o cbom.json  # CycloneDX CBOM for compliance
 ```
 
 Pipeline flow:
@@ -74,9 +78,10 @@ Pipeline flow:
 file_walker.walk_files()
     → scanner/source.py (regex on source code)
     → scanner/deps.py (package.json, requirements.txt, go.mod, etc.)
+    → scanner/config.py (nginx, SSH, OpenSSL, JWT, PEM configs)
     → classifier/quantum_risk.py (enrich with risk/replacement)
     → advisor/migration.py (generate migration messages)
-    → output/text.py or output/json_out.py or output/sarif.py (render)
+    → output/text.py or json_out.py or sarif.py or cbom.py (render)
 ```
 
 ## Key models (models.py)
@@ -148,7 +153,7 @@ qproof scan .
 qproof scan . --format json
 qproof scan . --format json -o report.json
 
-# Tests (194 passing)
+# Tests (228 passing)
 pytest -v
 pytest -v tests/test_source_scanner.py  # specific module
 
@@ -219,7 +224,7 @@ git commit -m "checkpoint(QP-XXX): what was done — state: lint PASS, test PASS
 - Do not refactor modules outside the ticket scope
 - Do not change models.py unless the ticket explicitly says so
 - Do not add AST/tree-sitter scanning (reserved for v0.2)
-- Do not implement CBOM output (separate ticket)
+- Do not add new output formats without a ticket
 - Do not connect to external APIs or services
 
 ## MVP ticket sequence
@@ -234,7 +239,9 @@ QP-006 ✅ Rich terminal output (color-coded table + score)
 QP-007 ✅ JSON output (structured with metadata)
 QP-008 ✅ Integration tests + README + PyPI prep
 QP-009 ✅ SARIF output (GitHub Security tab integration)
-QP-010 ⬜ GitHub Action (action.yml for CI/CD)
+QP-010 ✅ GitHub Action (action.yml for CI/CD) + PyPI v0.2.0
+QP-011 ✅ CBOM CycloneDX v1.6 (cryptographic asset inventory)
+QP-012 ✅ Config scanner (TLS, SSH, JWT, OpenSSL, PEM)
 ```
 
 ## Known limitations (v0.1)
@@ -247,8 +254,7 @@ QP-010 ⬜ GitHub Action (action.yml for CI/CD)
 
 ## Post-MVP roadmap (not in scope for current tickets)
 
-- v0.2: AST scanner (tree-sitter), GitHub Action marketplace
-- v0.3: CBOM CycloneDX output, config scanner (TLS/JWT/SSH), Go/Java support
+- v0.3: AST scanner (tree-sitter), GitHub Action marketplace, Go/Java source support
 - v1.0: Dashboard SaaS (Next.js + Supabase), GitHub OAuth, compliance PDF reports
 
 ## Agent delegation rules

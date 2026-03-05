@@ -40,6 +40,9 @@ def _finding_to_dict(cf: ClassifiedFinding, scan_path: str) -> dict[str, Any]:
         "replacement": cf.replacement,
         "confidence": cf.confidence,
         "context": cf.context,
+        "severity": cf.severity,
+        "category": cf.category,
+        "remediation": cf.remediation,
     }
 
 

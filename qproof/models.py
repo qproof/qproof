@@ -53,6 +53,9 @@ class ClassifiedFinding:
     reason: str
     confidence: Literal["low", "medium", "high"] = "medium"
     context: Literal["runtime", "test", "docs", "comment", "build"] = "runtime"
+    severity: Literal["critical", "high", "medium", "low", "info"] = "medium"
+    category: str | None = None
+    remediation: str | None = None
 
 
 @dataclass

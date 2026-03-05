@@ -22,6 +22,14 @@ _CONFIDENCE_STYLES: dict[str, str] = {
     "low": "dim",
 }
 
+_SEVERITY_STYLES: dict[str, str] = {
+    "critical": "bold red",
+    "high": "red",
+    "medium": "yellow",
+    "low": "cyan",
+    "info": "dim",
+}
+
 _RISK_ORDER: list[QuantumRisk] = [
     QuantumRisk.VULNERABLE,
     QuantumRisk.PARTIAL,
@@ -66,7 +74,7 @@ def render_text(result: ScanResult) -> str:
     Returns:
         Formatted text output captured from the Rich console.
     """
-    console = Console(record=True, width=120)
+    console = Console(record=True, width=160)
 
     # Header
     console.print()
@@ -125,6 +133,7 @@ def render_text(result: ScanResult) -> str:
             show_lines=True,
             title_style="bold",
         )
+        table.add_column("Severity", width=10)
         table.add_column("Risk", width=12)
         table.add_column("Algorithm", width=18)
         table.add_column("File:Line", min_width=30)
@@ -138,7 +147,9 @@ def render_text(result: ScanResult) -> str:
         for cf in sorted_findings:
             risk_style = _RISK_STYLES.get(cf.quantum_risk, "dim")
             conf_style = _CONFIDENCE_STYLES.get(cf.confidence, "dim")
+            sev_style = _SEVERITY_STYLES.get(cf.severity, "dim")
             table.add_row(
+                Text(cf.severity.upper(), style=sev_style),
                 Text(cf.quantum_risk.value, style=risk_style),
                 cf.algorithm.name,
                 _format_file_line(cf, str(result.path)),

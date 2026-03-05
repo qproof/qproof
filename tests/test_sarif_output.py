@@ -13,6 +13,13 @@ from qproof.models import (
 )
 from qproof.output.sarif import findings_to_sarif
 
+_RISK_TO_SEVERITY: dict[QuantumRisk, str] = {
+    QuantumRisk.VULNERABLE: "high",
+    QuantumRisk.PARTIAL: "medium",
+    QuantumRisk.SAFE: "info",
+    QuantumRisk.UNKNOWN: "medium",
+}
+
 
 def _make_classified(
     algorithm_id: str,
@@ -45,6 +52,7 @@ def _make_classified(
         quantum_risk=risk,
         replacement=replacement,
         reason=f"{name} is {risk.value}",
+        severity=_RISK_TO_SEVERITY[risk],
     )
 
 

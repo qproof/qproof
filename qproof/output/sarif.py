@@ -6,6 +6,7 @@ import json
 from typing import Any
 
 from qproof import __version__
+from qproof.classifier.severity import severity_to_sarif_level
 from qproof.models import ClassifiedFinding, QuantumRisk
 
 _SARIF_SCHEMA = (
@@ -52,9 +53,11 @@ def _build_result(
     except ValueError:
         pass
 
+    sarif_level = severity_to_sarif_level(cf.severity)
+
     result: dict[str, Any] = {
         "ruleId": f"qproof/{cf.algorithm.id}",
-        "level": _RISK_TO_LEVEL[cf.quantum_risk],
+        "level": sarif_level,
         "message": {
             "text": (
                 f"{cf.algorithm.name} detected — {cf.reason}. "
@@ -81,6 +84,9 @@ def _build_result(
             "replacement": cf.replacement,
             "confidence": cf.confidence,
             "context": cf.context,
+            "severity": cf.severity,
+            "category": cf.category,
+            "remediation": cf.remediation,
         },
     }
     return result

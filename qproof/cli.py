@@ -8,6 +8,7 @@ import click
 from qproof import __version__
 from qproof.classifier.context import enrich_findings
 from qproof.classifier.quantum_risk import classify
+from qproof.classifier.severity import enrich_severity
 from qproof.models import ScanResult
 from qproof.output.json_out import render_json
 from qproof.output.text import render_text
@@ -53,6 +54,9 @@ def scan(path: str, output_format: str, output: str | None) -> None:
 
     # Enrich with context and confidence scoring
     enrich_findings(classified)
+
+    # Enrich with severity, category, and remediation
+    enrich_severity(classified)
 
     duration = time.monotonic() - start
 

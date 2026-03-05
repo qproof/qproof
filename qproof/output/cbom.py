@@ -132,6 +132,9 @@ def _build_component(
         {"name": "qproof:source", "value": representative.finding.source},
         {"name": "qproof:confidence", "value": representative.confidence},
         {"name": "qproof:context", "value": representative.context},
+        {"name": "qproof:severity", "value": representative.severity},
+        {"name": "qproof:category", "value": representative.category or ""},
+        {"name": "qproof:remediation", "value": representative.remediation or ""},
     ]
 
     component: dict[str, Any] = {

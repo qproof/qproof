@@ -1,11 +1,14 @@
 """CLI interface for qproof."""
 
+import json
+import sys
 import time
 from pathlib import Path
 
 import click
 
 from qproof import __version__
+from qproof.baseline import generate_baseline
 from qproof.classifier.context import enrich_findings
 from qproof.classifier.quantum_risk import classify
 from qproof.classifier.severity import enrich_severity
@@ -34,7 +37,18 @@ def main() -> None:
     help="Output format.",
 )
 @click.option("--output", "-o", type=click.Path(), default=None, help="Write output to file.")
-def scan(path: str, output_format: str, output: str | None) -> None:
+@click.option(
+    "--baseline",
+    type=click.Path(),
+    default=None,
+    help="Generate baseline snapshot file.",
+)
+def scan(
+    path: str,
+    output_format: str,
+    output: str | None,
+    baseline: str | None,
+) -> None:
     """Scan a directory for quantum-vulnerable cryptography."""
     target = Path(path).resolve()
     start = time.monotonic()
@@ -59,6 +73,21 @@ def scan(path: str, output_format: str, output: str | None) -> None:
     enrich_severity(classified)
 
     duration = time.monotonic() - start
+
+    # Baseline mode: generate snapshot and exit
+    if baseline:
+        baseline_data = generate_baseline(classified, __version__)
+        baseline_path = Path(baseline)
+        baseline_path.write_text(
+            json.dumps(baseline_data, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        click.echo(
+            f"Baseline generated: {baseline_path} "
+            f"({baseline_data['findings_count']} findings)",
+            err=True,
+        )
+        sys.exit(0)
 
     # Build result
     result = ScanResult(

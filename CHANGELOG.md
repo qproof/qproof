@@ -2,6 +2,24 @@
 
 All notable changes to qproof will be documented in this file.
 
+## [0.3.0] — 2026-03-05
+
+### Added
+- CBOM CycloneDX v1.6 output format (`--format cbom`) for cryptographic asset inventory
+- OID mapping for 12 algorithms (ITU-T X.660)
+- CycloneDX primitive classification (pke, signature, blockcipher, hash, kdf, mac)
+- Deduplication: same algorithm grouped into single component with multiple occurrences
+- Config scanner for server/infrastructure crypto settings
+- TLS version detection (nginx, Apache, HAProxy, OpenSSL, .env)
+- SSH key type detection (.pub files) and SSH config cipher/MAC/KEX analysis
+- JWT algorithm detection (RS256, ES256) in JSON, YAML, and .env files
+- OpenSSL config scanning (default_md, default_bits)
+- PEM/certificate header detection (RSA, DSA, ECDSA private keys)
+
+### Changed
+- CLI `--format` now accepts `text`, `json`, `sarif`, `cbom`
+- Scan pipeline now includes config scanner (source + deps + config)
+
 ## [0.2.0] — 2026-03-05
 
 ### Added

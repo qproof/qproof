@@ -23,12 +23,16 @@ qproof/
 │   ├── __init__.py          # __version__
 │   ├── cli.py               # Click CLI — full pipeline wired
 │   ├── models.py            # QuantumRisk, Finding, AlgorithmInfo, ClassifiedFinding, ScanResult
+│   ├── baseline.py          # Baseline snapshot generation/loading + diff engine
+│   ├── policy.py            # Policy-as-Code engine (qproof.yml)
 │   ├── scanner/
 │   │   ├── source.py        # Regex scanner — smart word boundaries, dedup, binary skip
 │   │   ├── deps.py          # Dependency scanner — 8 manifest formats
 │   │   └── config.py        # Config scanner (TLS, JWT, SSH, OpenSSL, PEM)
 │   ├── classifier/
-│   │   └── quantum_risk.py  # Enriches findings with risk + replacement + reason
+│   │   ├── quantum_risk.py  # Enriches findings with risk + replacement + reason
+│   │   ├── context.py       # Context (runtime/test/docs/comment/build) + confidence scoring
+│   │   └── severity.py      # 5-level severity model + category/remediation from YAML
 │   ├── advisor/
 │   │   └── migration.py     # CRITICAL/WARNING/INFO migration recommendations
 │   ├── data/
@@ -36,14 +40,16 @@ qproof/
 │   │   ├── libraries.yaml   # 13 libraries mapped to algorithms
 │   │   └── loader.py        # YAML loader with caching and validation
 │   ├── output/
-│   │   ├── text.py          # Rich terminal — color-coded table, summary panel, score
-│   │   ├── json_out.py      # Structured JSON with metadata, summary, findings
+│   │   ├── text.py          # Rich terminal — color-coded table, summary panel, score, diff badges
+│   │   ├── json_out.py      # Structured JSON with metadata, summary, findings, diff_summary
 │   │   ├── sarif.py         # SARIF v2.1.0 for GitHub Security tab
 │   │   └── cbom.py          # CycloneDX v1.6 CBOM for EU compliance
 │   └── utils/
 │       └── file_walker.py   # Directory traversal with exclusions
+├── examples/
+│   └── qproof.yml           # Example policy file
 ├── tests/
-│   ├── fixtures/            # Sample projects + false positives
+│   ├── fixtures/            # Sample projects + false positives + policy fixtures
 │   ├── test_cli.py
 │   ├── test_models.py
 │   ├── test_file_walker.py
@@ -56,7 +62,12 @@ qproof/
 │   ├── test_json_output.py
 │   ├── test_sarif_output.py
 │   ├── test_cbom_output.py
-│   └── test_config_scanner.py
+│   ├── test_config_scanner.py
+│   ├── test_context.py
+│   ├── test_severity.py
+│   ├── test_baseline.py
+│   ├── test_diff.py
+│   └── test_policy.py
 ├── pyproject.toml
 ├── .github/workflows/ci.yml
 ├── CLAUDE.md
@@ -71,6 +82,9 @@ qproof scan <path> --format json            # JSON to stdout
 qproof scan <path> --format json -o out.json # JSON to file
 qproof scan <path> --format sarif -o out.sarif # SARIF for GitHub Security
 qproof scan <path> --format cbom -o cbom.json  # CycloneDX CBOM for compliance
+qproof scan <path> --baseline bl.json       # Generate baseline snapshot
+qproof scan <path> --diff bl.json           # Diff against baseline (CI gate)
+qproof policy validate --file qproof.yml    # Validate policy file
 ```
 
 Pipeline flow:
@@ -80,8 +94,12 @@ file_walker.walk_files()
     → scanner/deps.py (package.json, requirements.txt, go.mod, etc.)
     → scanner/config.py (nginx, SSH, OpenSSL, JWT, PEM configs)
     → classifier/quantum_risk.py (enrich with risk/replacement)
-    → advisor/migration.py (generate migration messages)
+    → classifier/context.py (confidence + context scoring)
+    → classifier/severity.py (5-level severity + category + remediation)
+    → policy.py (severity overrides, ignore paths/algorithms, allow rules)
+    → baseline.py --baseline (snapshot) or --diff (compare + exit code)
     → output/text.py or json_out.py or sarif.py or cbom.py (render)
+    → policy.py (fail condition check → exit code)
 ```
 
 ## Key models (models.py)
@@ -89,7 +107,7 @@ file_walker.walk_files()
 - `QuantumRisk`: Enum — VULNERABLE | PARTIAL | SAFE | UNKNOWN
 - `Finding`: file_path, line_number, matched_text, algorithm_id, source ("source" | "dependency" | "config"), context
 - `AlgorithmInfo`: id, name, type, quantum_risk, reason, replacement, patterns
-- `ClassifiedFinding`: finding + algorithm + quantum_risk + replacement + reason
+- `ClassifiedFinding`: finding + algorithm + quantum_risk + replacement + reason + confidence + context + severity + category + remediation + diff_status
 - `ScanResult`: path, findings, total_files_scanned, scan_duration_seconds
   - Properties: vulnerable_count, partial_count, safe_count, quantum_ready_score
 
@@ -153,7 +171,7 @@ qproof scan .
 qproof scan . --format json
 qproof scan . --format json -o report.json
 
-# Tests (228 passing)
+# Tests (352 passing)
 pytest -v
 pytest -v tests/test_source_scanner.py  # specific module
 
@@ -242,6 +260,11 @@ QP-009 ✅ SARIF output (GitHub Security tab integration)
 QP-010 ✅ GitHub Action (action.yml for CI/CD) + PyPI v0.2.0
 QP-011 ✅ CBOM CycloneDX v1.6 (cryptographic asset inventory)
 QP-012 ✅ Config scanner (TLS, SSH, JWT, OpenSSL, PEM)
+QP-013 ✅ Baseline snapshot generation (--baseline flag)
+QP-014 ✅ Diff mode (--diff flag, CI exit codes)
+QP-015 ✅ Policy-as-Code (qproof.yml — ignore, allow, fail, severity overrides)
+QP-016 ✅ Confidence + context scoring (low/med/high, runtime/test/docs/comment/build)
+QP-017 ✅ 5-level severity model (critical/high/medium/low/info) + category + remediation
 ```
 
 ## Known limitations (v0.1)

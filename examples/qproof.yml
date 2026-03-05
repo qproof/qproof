@@ -1,0 +1,36 @@
+# qproof.yml — Policy-as-Code for quantum-vulnerable cryptography
+#
+# Place this file in your project root. qproof will auto-detect it
+# during scans and apply the rules below.
+#
+# Schema reference: https://github.com/qproof/qproof#policy-as-code
+
+version: "1"
+
+# Paths and algorithms to ignore entirely
+ignore:
+  paths:
+    - "vendor/**"
+    - "node_modules/**"
+    - "**/test_*"
+    - "docs/**"
+  algorithms:
+    - MD5  # Used only for checksums, not security
+
+# Temporary exceptions for known algorithms in specific paths
+allow:
+  - algorithm: RSA
+    paths: ["legacy/auth/**"]
+    reason: "Migration planned for Q3 2026"
+    expires: "2026-09-30"
+
+# CI failure conditions
+fail:
+  on_severity: high        # Fail on findings >= this severity
+  max_new_findings: 0      # With --diff: max new findings before fail
+
+# Override calculated severity for specific algorithms
+severity_overrides:
+  - algorithm: SHA-1
+    severity: critical
+    reason: "Company policy: no SHA-1 anywhere"

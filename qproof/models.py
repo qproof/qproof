@@ -56,6 +56,7 @@ class ClassifiedFinding:
     severity: Literal["critical", "high", "medium", "low", "info"] = "medium"
     category: str | None = None
     remediation: str | None = None
+    diff_status: Literal["new", "worsened", "resolved"] | None = None
 
 
 @dataclass

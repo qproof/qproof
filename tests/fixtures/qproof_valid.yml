@@ -1,0 +1,25 @@
+version: "1"
+
+ignore:
+  paths:
+    - "vendor/**"
+    - "node_modules/**"
+    - "**/test_*"
+    - "docs/**"
+  algorithms:
+    - MD5
+
+allow:
+  - algorithm: RSA
+    paths: ["legacy/auth/**"]
+    reason: "Migration planned for Q3 2026"
+    expires: "2026-09-30"
+
+fail:
+  on_severity: high
+  max_new_findings: 0
+
+severity_overrides:
+  - algorithm: SHA-1
+    severity: critical
+    reason: "Company policy: no SHA-1 anywhere"

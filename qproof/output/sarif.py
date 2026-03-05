@@ -87,6 +87,7 @@ def _build_result(
             "severity": cf.severity,
             "category": cf.category,
             "remediation": cf.remediation,
+            "diff_status": cf.diff_status,
         },
     }
     return result

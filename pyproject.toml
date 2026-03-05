@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "qproof"
-version = "0.3.0"
+version = "0.4.0"
 description = "Find quantum-vulnerable cryptography in your codebase"
 readme = "README.md"
 license = {text = "MIT"}

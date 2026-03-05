@@ -6,6 +6,7 @@ import json
 from typing import Any
 
 from qproof import __version__
+from qproof.baseline import DiffResult
 from qproof.models import ClassifiedFinding, ScanResult
 
 
@@ -43,17 +44,23 @@ def _finding_to_dict(cf: ClassifiedFinding, scan_path: str) -> dict[str, Any]:
         "severity": cf.severity,
         "category": cf.category,
         "remediation": cf.remediation,
+        "diff_status": cf.diff_status,
     }
 
 
-def render_json(result: ScanResult) -> str:
+def render_json(
+    result: ScanResult,
+    diff_result: DiffResult | None = None,
+) -> str:
     """Render scan results as a JSON string for CI/CD integration.
 
     Produces a structured JSON document with version info, summary
-    statistics, and detailed findings.
+    statistics, and detailed findings. When *diff_result* is provided,
+    includes a ``diff_summary`` section.
 
     Args:
         result: The scan result to render.
+        diff_result: Optional diff result for diff mode.
 
     Returns:
         Pretty-printed JSON string (indent=2).
@@ -76,5 +83,13 @@ def render_json(result: ScanResult) -> str:
             _finding_to_dict(cf, scan_path) for cf in result.findings
         ],
     }
+
+    if diff_result is not None:
+        output["diff_summary"] = {
+            "new": len(diff_result.new),
+            "worsened": len(diff_result.worsened),
+            "resolved": len(diff_result.resolved),
+            "unchanged": len(diff_result.unchanged),
+        }
 
     return json.dumps(output, indent=2)

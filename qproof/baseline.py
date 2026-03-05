@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -137,3 +138,91 @@ def load_baseline(path: str | Path) -> dict[str, Any]:
         raise ValueError(f"Baseline file missing required keys: {sorted(missing)}")
 
     return data
+
+
+# Severity ordering for worsened detection (lower index = more severe).
+_SEVERITY_ORDER = ["critical", "high", "medium", "low", "info"]
+
+
+def _severity_index(severity: str) -> int:
+    """Return severity index (0 = most severe). Unknown defaults to middle."""
+    try:
+        return _SEVERITY_ORDER.index(severity)
+    except ValueError:
+        return 2
+
+
+@dataclass
+class DiffResult:
+    """Result of diffing current findings against a baseline.
+
+    Attributes:
+        new: Findings not present in the baseline.
+        worsened: Findings present in the baseline but with higher severity now.
+        resolved: Baseline entries that no longer appear in the current scan.
+        unchanged: Current findings that match the baseline exactly.
+    """
+
+    new: list[ClassifiedFinding] = field(default_factory=list)
+    worsened: list[ClassifiedFinding] = field(default_factory=list)
+    resolved: list[dict[str, Any]] = field(default_factory=list)
+    unchanged: list[ClassifiedFinding] = field(default_factory=list)
+
+    @property
+    def has_new_debt(self) -> bool:
+        """True if there are new or worsened findings (CI should fail)."""
+        return len(self.new) > 0 or len(self.worsened) > 0
+
+
+def diff_findings(
+    current: list[ClassifiedFinding],
+    baseline: dict[str, Any],
+) -> DiffResult:
+    """Compare current findings against a baseline snapshot.
+
+    Each finding is identified by its deterministic hash. A finding is:
+    - **new** if its hash does not appear in the baseline.
+    - **worsened** if its hash exists but severity increased.
+    - **resolved** if a baseline hash no longer appears in the current scan.
+    - **unchanged** otherwise.
+
+    Side effect: sets ``diff_status`` on each ClassifiedFinding in *current*.
+
+    Args:
+        current: Classified findings from the current scan.
+        baseline: Parsed baseline dict (from ``load_baseline``).
+
+    Returns:
+        DiffResult with categorised findings.
+    """
+    # Build lookup from baseline: hash → entry dict
+    baseline_by_hash: dict[str, dict[str, Any]] = {
+        entry["hash"]: entry for entry in baseline.get("findings", [])
+    }
+
+    result = DiffResult()
+    seen_hashes: set[str] = set()
+
+    for cf in current:
+        h = finding_hash(cf)
+        seen_hashes.add(h)
+        baseline_entry = baseline_by_hash.get(h)
+
+        if baseline_entry is None:
+            cf.diff_status = "new"
+            result.new.append(cf)
+        elif _severity_index(cf.severity) < _severity_index(
+            baseline_entry.get("severity", "medium"),
+        ):
+            cf.diff_status = "worsened"
+            result.worsened.append(cf)
+        else:
+            cf.diff_status = None
+            result.unchanged.append(cf)
+
+    # Resolved: baseline hashes not seen in current scan
+    for h, entry in baseline_by_hash.items():
+        if h not in seen_hashes:
+            result.resolved.append(entry)
+
+    return result

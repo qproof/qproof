@@ -1,0 +1,7 @@
+version: "1"
+
+allow:
+  - algorithm: RSA
+    paths: ["legacy/**"]
+    reason: "Was planned for migration"
+    expires: "2020-01-01"

@@ -7,6 +7,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from qproof.baseline import DiffResult
 from qproof.models import ClassifiedFinding, QuantumRisk, ScanResult
 
 _RISK_STYLES: dict[QuantumRisk, str] = {
@@ -62,14 +63,20 @@ def _format_file_line(finding: ClassifiedFinding, scan_path: str) -> str:
     return file_str
 
 
-def render_text(result: ScanResult) -> str:
+def render_text(
+    result: ScanResult,
+    diff_result: DiffResult | None = None,
+) -> str:
     """Render scan results as human-readable Rich terminal output.
 
     Creates a formatted report with a header panel, summary statistics,
-    and a findings table grouped by risk level.
+    and a findings table grouped by risk level. When *diff_result* is
+    provided, findings are annotated with [NEW] or [WORSENED] badges
+    and a diff summary panel is appended.
 
     Args:
         result: The scan result to render.
+        diff_result: Optional diff result for diff mode.
 
     Returns:
         Formatted text output captured from the Rich console.
@@ -148,8 +155,20 @@ def render_text(result: ScanResult) -> str:
             risk_style = _RISK_STYLES.get(cf.quantum_risk, "dim")
             conf_style = _CONFIDENCE_STYLES.get(cf.confidence, "dim")
             sev_style = _SEVERITY_STYLES.get(cf.severity, "dim")
+
+            # Diff badge
+            if cf.diff_status == "new":
+                badge = Text(" [NEW]", style="bold red")
+            elif cf.diff_status == "worsened":
+                badge = Text(" [WORSENED]", style="bold yellow")
+            else:
+                badge = Text("")
+
+            sev_text = Text(cf.severity.upper(), style=sev_style)
+            sev_text.append_text(badge)
+
             table.add_row(
-                Text(cf.severity.upper(), style=sev_style),
+                sev_text,
                 Text(cf.quantum_risk.value, style=risk_style),
                 cf.algorithm.name,
                 _format_file_line(cf, str(result.path)),
@@ -160,6 +179,23 @@ def render_text(result: ScanResult) -> str:
             )
 
         console.print(table)
+
+    # Diff summary panel
+    if diff_result is not None:
+        diff_grid = Table.grid(padding=(0, 2))
+        diff_grid.add_column(style="bold")
+        diff_grid.add_column()
+        diff_grid.add_row("New:", Text(str(len(diff_result.new)), style="bold red"))
+        diff_grid.add_row(
+            "Worsened:", Text(str(len(diff_result.worsened)), style="bold yellow"),
+        )
+        diff_grid.add_row(
+            "Resolved:", Text(str(len(diff_result.resolved)), style="bold green"),
+        )
+        diff_grid.add_row("Unchanged:", str(len(diff_result.unchanged)))
+        console.print(
+            Panel(diff_grid, title="Diff Summary", border_style="cyan"),
+        )
 
     console.print()
     return console.export_text()

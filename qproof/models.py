@@ -1,8 +1,11 @@
 """Data models for qproof scan results."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+from typing import Literal
 
 
 class QuantumRisk(Enum):
@@ -48,6 +51,8 @@ class ClassifiedFinding:
     quantum_risk: QuantumRisk
     replacement: str
     reason: str
+    confidence: Literal["low", "medium", "high"] = "medium"
+    context: Literal["runtime", "test", "docs", "comment", "build"] = "runtime"
 
 
 @dataclass

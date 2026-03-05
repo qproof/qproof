@@ -6,6 +6,7 @@ from pathlib import Path
 import click
 
 from qproof import __version__
+from qproof.classifier.context import enrich_findings
 from qproof.classifier.quantum_risk import classify
 from qproof.models import ScanResult
 from qproof.output.json_out import render_json
@@ -49,6 +50,9 @@ def scan(path: str, output_format: str, output: str | None) -> None:
 
     # Classify findings
     classified = classify(all_findings)
+
+    # Enrich with context and confidence scoring
+    enrich_findings(classified)
 
     duration = time.monotonic() - start
 

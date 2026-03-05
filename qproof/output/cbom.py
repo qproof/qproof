@@ -130,6 +130,8 @@ def _build_component(
         {"name": "qproof:quantum_risk", "value": representative.quantum_risk.value},
         {"name": "qproof:replacement", "value": representative.replacement},
         {"name": "qproof:source", "value": representative.finding.source},
+        {"name": "qproof:confidence", "value": representative.confidence},
+        {"name": "qproof:context", "value": representative.context},
     ]
 
     component: dict[str, Any] = {

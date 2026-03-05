@@ -16,6 +16,12 @@ _RISK_STYLES: dict[QuantumRisk, str] = {
     QuantumRisk.UNKNOWN: "dim",
 }
 
+_CONFIDENCE_STYLES: dict[str, str] = {
+    "high": "bold green",
+    "medium": "yellow",
+    "low": "dim",
+}
+
 _RISK_ORDER: list[QuantumRisk] = [
     QuantumRisk.VULNERABLE,
     QuantumRisk.PARTIAL,
@@ -123,17 +129,22 @@ def render_text(result: ScanResult) -> str:
         table.add_column("Algorithm", width=18)
         table.add_column("File:Line", min_width=30)
         table.add_column("Source", width=14)
+        table.add_column("Confidence", width=10)
+        table.add_column("Context", width=10)
         table.add_column("Replacement", min_width=20)
 
         sorted_findings = sorted(result.findings, key=_risk_sort_key)
 
         for cf in sorted_findings:
             risk_style = _RISK_STYLES.get(cf.quantum_risk, "dim")
+            conf_style = _CONFIDENCE_STYLES.get(cf.confidence, "dim")
             table.add_row(
                 Text(cf.quantum_risk.value, style=risk_style),
                 cf.algorithm.name,
                 _format_file_line(cf, str(result.path)),
                 cf.finding.source,
+                Text(cf.confidence.upper(), style=conf_style),
+                cf.context,
                 cf.replacement or "-",
             )
 

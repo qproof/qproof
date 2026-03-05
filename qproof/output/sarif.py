@@ -79,6 +79,8 @@ def _build_result(
             "quantum_risk": cf.quantum_risk.value,
             "algorithm_type": cf.algorithm.type,
             "replacement": cf.replacement,
+            "confidence": cf.confidence,
+            "context": cf.context,
         },
     }
     return result

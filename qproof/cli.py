@@ -26,7 +26,7 @@ def main() -> None:
 @click.option(
     "--format",
     "output_format",
-    type=click.Choice(["text", "json"]),
+    type=click.Choice(["text", "json", "sarif"]),
     default="text",
     help="Output format.",
 )
@@ -61,6 +61,12 @@ def scan(path: str, output_format: str, output: str | None) -> None:
     # Render output
     if output_format == "json":
         rendered = render_json(result)
+    elif output_format == "sarif":
+        from qproof.output.sarif import findings_to_sarif
+
+        rendered = findings_to_sarif(
+            classified, str(target), result.scan_duration_seconds,
+        )
     else:
         rendered = render_text(result)
 

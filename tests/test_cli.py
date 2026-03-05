@@ -10,7 +10,8 @@ def test_cli_version() -> None:
     runner = CliRunner()
     result = runner.invoke(main, ["--version"])
     assert result.exit_code == 0
-    assert "0.1.0" in result.output
+    from qproof import __version__
+    assert __version__ in result.output
 
 
 def test_cli_scan_default() -> None:

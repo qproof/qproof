@@ -2,6 +2,17 @@
 
 All notable changes to qproof will be documented in this file.
 
+## [0.2.0] — 2026-03-05
+
+### Added
+- SARIF v2.1.0 output format (`--format sarif`) for GitHub Security tab integration
+- GitHub Actions workflow example in README
+- Rules per unique algorithm in SARIF (deduplication)
+- Severity mapping: VULNERABLE→error, PARTIAL→warning, SAFE→note
+
+### Changed
+- CLI `--format` now accepts `text`, `json`, `sarif`
+
 ## [0.1.0] — 2026-03-05
 
 ### Added
@@ -20,4 +31,4 @@ All notable changes to qproof will be documented in this file.
 ### Known limitations
 - Source scanner includes comments (no AST filtering yet)
 - Dependency parsers for pyproject.toml/Cargo.toml are line-based
-- No SARIF or CBOM output yet
+- No CBOM output yet

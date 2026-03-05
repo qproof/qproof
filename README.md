@@ -59,7 +59,38 @@ qproof scan . --format json
 
 # Save JSON report to file
 qproof scan . --format json --output report.json
+
+# SARIF output (for GitHub Security tab)
+qproof scan . --format sarif --output qproof.sarif
 ```
+
+## GitHub Actions integration
+
+Add this to `.github/workflows/qproof.yml`:
+
+```yaml
+name: Quantum Crypto Scan
+on: [push, pull_request]
+
+jobs:
+  qproof:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install qproof
+      - run: qproof scan . --format sarif --output qproof.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: qproof.sarif
+          category: qproof
+```
+
+Findings appear in your repository's **Security → Code scanning alerts** tab.
 
 ## What it detects
 
@@ -113,7 +144,7 @@ qproof maps every algorithm to formal standards for compliance reporting:
 ## Roadmap
 
 - [x] v0.1 — Regex source scanner, dependency scanner, Rich/JSON output
-- [ ] v0.2 — AST scanner (tree-sitter), SARIF output, GitHub Action
+- [ ] v0.2 — AST scanner (tree-sitter), GitHub Action marketplace
 - [ ] v0.3 — CBOM CycloneDX, config scanner (TLS/JWT/SSH), Go/Java source support
 - [ ] v1.0 — SaaS dashboard, compliance PDF reports
 

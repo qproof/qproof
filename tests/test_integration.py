@@ -148,7 +148,8 @@ class TestCLIIntegration:
             capture_output=True, text=True, timeout=10,
         )
         assert result.returncode == 0
-        assert "0.1.0" in result.stdout
+        from qproof import __version__
+        assert __version__ in result.stdout
 
     def test_cli_scan_nonexistent_path(self) -> None:
         """CLI with nonexistent path should fail gracefully."""

@@ -1,10 +1,18 @@
 """CLI interface for qproof."""
 
+import time
 from pathlib import Path
 
 import click
 
 from qproof import __version__
+from qproof.classifier.quantum_risk import classify
+from qproof.models import ScanResult
+from qproof.output.json_out import render_json
+from qproof.output.text import render_text
+from qproof.scanner.deps import scan_dependencies
+from qproof.scanner.source import scan_source_files
+from qproof.utils.file_walker import walk_files
 
 
 @click.group()
@@ -26,10 +34,40 @@ def main() -> None:
 def scan(path: str, output_format: str, output: str | None) -> None:
     """Scan a directory for quantum-vulnerable cryptography."""
     target = Path(path).resolve()
-    click.echo(f"Scanning {target}...")
-    click.echo(f"   Format: {output_format}")
+    start = time.monotonic()
+
+    # Count files
+    files = walk_files(target)
+    total_files = len(files)
+
+    # Scan source code and dependencies
+    source_findings = scan_source_files(target)
+    dep_findings = scan_dependencies(target)
+    all_findings = source_findings + dep_findings
+
+    # Classify findings
+    classified = classify(all_findings)
+
+    duration = time.monotonic() - start
+
+    # Build result
+    result = ScanResult(
+        path=target,
+        findings=classified,
+        total_files_scanned=total_files,
+        scan_duration_seconds=round(duration, 2),
+    )
+
+    # Render output
+    if output_format == "json":
+        rendered = render_json(result)
+    else:
+        rendered = render_text(result)
+
+    # Write or print
     if output:
-        click.echo(f"   Output: {output}")
-    click.echo()
-    click.echo("Scanner not yet implemented. Coming in QP-002 through QP-007.")
-    click.echo("   Install the latest version: pip install --upgrade qproof")
+        output_path = Path(output)
+        output_path.write_text(rendered, encoding="utf-8")
+        click.echo(f"Report written to {output_path}")
+    else:
+        click.echo(rendered)

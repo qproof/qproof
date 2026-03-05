@@ -4,24 +4,32 @@ build-backend = "hatchling.build"
 
 [project]
 name = "qproof"
-version = "0.1.0-dev"
+version = "0.1.0"
 description = "Find quantum-vulnerable cryptography in your codebase"
 readme = "README.md"
-license = "MIT"
+license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [{ name = "qproof contributors" }]
-keywords = ["quantum", "cryptography", "security", "pqc", "scanner", "cbom"]
+keywords = [
+    "quantum", "cryptography", "security", "pqc", "post-quantum",
+    "scanner", "vulnerability", "nist", "cnsa", "crypto-audit",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Security",
     "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Typing :: Typed",
 ]
 dependencies = [
     "click>=8.0",
@@ -42,6 +50,7 @@ qproof = "qproof.cli:main"
 Homepage = "https://github.com/qproof/qproof"
 Repository = "https://github.com/qproof/qproof"
 Issues = "https://github.com/qproof/qproof/issues"
+Changelog = "https://github.com/qproof/qproof/blob/main/CHANGELOG.md"
 
 [tool.ruff]
 target-version = "py310"

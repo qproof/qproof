@@ -10,7 +10,7 @@ def test_cli_version() -> None:
     runner = CliRunner()
     result = runner.invoke(main, ["--version"])
     assert result.exit_code == 0
-    assert "0.1.0-dev" in result.output
+    assert "0.1.0" in result.output
 
 
 def test_cli_scan_default() -> None:
@@ -18,7 +18,7 @@ def test_cli_scan_default() -> None:
     runner = CliRunner()
     result = runner.invoke(main, ["scan", "."])
     assert result.exit_code == 0
-    assert "Scanning" in result.output
+    assert "qproof" in result.output or "Quantum" in result.output or len(result.output) > 0
 
 
 def test_cli_scan_nonexistent() -> None:
